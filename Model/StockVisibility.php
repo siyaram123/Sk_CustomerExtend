@@ -7,6 +7,7 @@ use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\InventorySalesApi\Api\Data\SalesChannelInterface;
 use Magento\InventorySalesApi\Api\GetProductSalableQtyInterface;
 use Magento\InventorySalesApi\Api\StockResolverInterface;
+use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
 
 class StockVisibility
 {
