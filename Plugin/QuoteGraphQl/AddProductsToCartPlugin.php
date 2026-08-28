@@ -10,6 +10,7 @@ use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\QuoteGraphQl\Model\Resolver\AddProductsToCart;
 use Sk\CustomerExtend\Model\CustomerContext;
 use Sk\CustomerExtend\Model\WholesaleRuleService;
+use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
 
 class AddProductsToCartPlugin
 {
