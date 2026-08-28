@@ -5,7 +5,7 @@ Magento 2 module implementing customer-group based stock visibility and minimum 
 ## Features
 
 - Adds the `wholesale_only` product EAV attribute.
-- Adds `sk_customer_group_rule`, storing one minimum quantity per customer group.
+- Created table `sk_customer_group_rule`, storing one minimum quantity per customer group.
 - The rule is global for all products where `wholesale_only = Yes`; product IDs are intentionally not stored in the rule table.
 - Guests are treated as the General customer group by default.
 - General customers cannot add Wholesale Only products.
@@ -32,18 +32,6 @@ Production mode:
     php bin/magento setup:di:compile
     php bin/magento setup:static-content:deploy -f
     php bin/magento cache:flush
-
-## Existing installation migration
-
-If you previously installed a version using `sk_product_group_rule`, this version intentionally uses a new table name and schema. In a disposable local environment, remove the old table before `setup:upgrade`:
-
-    DROP TABLE IF EXISTS sk_product_group_rule;
-
-The new table is:
-
-    sk_customer_group_rule
-
-Do not drop an old production table until its data has been backed up/migrated.
 
 ## Product configuration
 
