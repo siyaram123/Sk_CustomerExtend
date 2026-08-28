@@ -10,9 +10,7 @@ This README is based on the scenarios required by the task.
 | General group | `1` |
 | Wholesale group | `2` |
 | Wholesale Only SKU | `24-MB04` |
-| `24-MB04` stock | `50` |
-| Wholesale Only SKU | `24-WB02` |
-| `24-WB02` stock | `100` |
+| `24-MB04` stock | `100` |
 | Wholesale MOQ | `10` |
 
 ### Important quantity clarification
@@ -29,7 +27,7 @@ quantity 9  -> FAIL
 quantity 10 -> PASS
 ```
 
-The values `50` and `100` are product stock quantities, not maximum order quantities.
+The values `100` are product stock quantities, not maximum order quantities.
 
 ---
 
@@ -142,8 +140,7 @@ for:
 Expected stock:
 
 ```text
-24-MB04 = 50
-24-WB02 = 100
+24-MB04 = 100
 ```
 
 ---
@@ -175,8 +172,6 @@ The rule applies globally to products where:
 ```text
 wholesale_only = Yes
 ```
-
-There is deliberately no `product_id` in the rule table.
 
 ---
 
@@ -366,9 +361,6 @@ query {
   }
 }
 ```
-
-For `24-WB02`, change only the SKU.
-
 ---
 
 # REQUIRED PRODUCT QUERY SCENARIOS
@@ -397,35 +389,11 @@ customer_group_stock_quantity = null/hidden
 minimum_order_quantity = 0
 ```
 
-The actual stock is `50`, but the guest must not receive the exact quantity.
-
----
-
-## Scenario 2 — Guest: `24-WB02`
-
-No Authorization header.
-
-Use the same query with:
-
-```text
-SKU = 24-WB02
-```
-
-### Expected
-
-```text
-wholesale_only = true
-customer_group_id = 1
-customer_group_stock_status = IN_STOCK
-customer_group_stock_quantity = null/hidden
-minimum_order_quantity = 0
-```
-
 The actual stock is `100`, but the guest must not receive the exact quantity.
 
 ---
 
-## Scenario 3 — General Customer: `24-MB04`
+## Scenario 2 — General Customer: `24-MB04`
 
 ### Header
 
@@ -447,70 +415,12 @@ General customer must not see the exact stock quantity.
 
 ---
 
-## Scenario 4 — General Customer: `24-WB02`
-
-### Header
-
-```text
-Authorization: Bearer <GENERAL_CUSTOMER_TOKEN>
-```
-
-Use:
-
-```text
-SKU = 24-WB02
-```
-
-### Expected
-
-```text
-wholesale_only = true
-customer_group_id = 1
-customer_group_stock_status = IN_STOCK
-customer_group_stock_quantity = null/hidden
-minimum_order_quantity = 0
-```
-
----
-
-## Scenario 5 — Wholesale Customer: `24-MB04`
+## Scenario 3 — Wholesale Customer: `24-MB04`
 
 ### Header
 
 ```text
 Authorization: Bearer <WHOLESALE_CUSTOMER_TOKEN>
-```
-
-### Expected
-
-```text
-wholesale_only = true
-customer_group_id = 2
-customer_group_stock_status = IN_STOCK
-customer_group_stock_quantity = 50
-minimum_order_quantity = 10
-```
-
-This verifies:
-
-- customer context = Wholesale
-- exact salable quantity is visible
-- MOQ is visible
-
----
-
-## Scenario 6 — Wholesale Customer: `24-WB02`
-
-### Header
-
-```text
-Authorization: Bearer <WHOLESALE_CUSTOMER_TOKEN>
-```
-
-Use:
-
-```text
-SKU = 24-WB02
 ```
 
 ### Expected
@@ -523,11 +433,17 @@ customer_group_stock_quantity = 100
 minimum_order_quantity = 10
 ```
 
+This verifies:
+
+- customer context = Wholesale
+- exact salable quantity is visible
+- MOQ is visible
+
 ---
 
 # REQUIRED ADD-TO-CART SCENARIOS
 
-## Scenario 7 — General Customer Cannot Add `24-MB04`
+## Scenario 4 — General Customer Cannot Add `24-MB04`
 
 ### Header
 
@@ -568,44 +484,7 @@ This product is not available for your account type.
 This verifies the General customer restriction.
 
 ---
-
-## Scenario 8 — General Customer Cannot Add `24-WB02`
-
-### Header
-
-```text
-Authorization: Bearer <GENERAL_CUSTOMER_TOKEN>
-```
-
-### Request
-
-```graphql
-mutation {
-  addProductsToCart(
-    cartId: "<GENERAL_CART_ID>"
-    cartItems: [
-      {
-        sku: "24-WB02"
-        quantity: 1
-      }
-    ]
-  ) {
-    cart {
-      id
-    }
-  }
-}
-```
-
-### Expected
-
-```text
-This product is not available for your account type.
-```
-
----
-
-## Scenario 9 — Guest Cannot Add `24-MB04`
+## Scenario 5 — Guest Cannot Add `24-MB04`
 
 ### Header
 
@@ -641,40 +520,6 @@ This verifies the requirement that guests are treated as General by default.
 
 ---
 
-## Scenario 10 — Guest Cannot Add `24-WB02`
-
-### Header
-
-No Authorization header.
-
-### Request
-
-```graphql
-mutation {
-  addProductsToCart(
-    cartId: "<GUEST_CART_ID>"
-    cartItems: [
-      {
-        sku: "24-WB02"
-        quantity: 1
-      }
-    ]
-  ) {
-    cart {
-      id
-    }
-  }
-}
-```
-
-### Expected
-
-```text
-This product is not available for your account type.
-```
-
----
-
 # MOQ TESTS
 
 The configured MOQ is:
@@ -685,7 +530,7 @@ The configured MOQ is:
 
 The module validates MOQ directly inside the `addProductsToCart` resolver plugin.
 
-## Scenario 11 — Wholesale `24-MB04`, quantity below MOQ
+## Scenario 6 — Wholesale `24-MB04`, quantity below MOQ
 
 ### Header
 
@@ -731,7 +576,7 @@ The important validation is:
 
 ---
 
-## Scenario 12 — Wholesale `24-MB04`, quantity equal to MOQ
+## Scenario 7 — Wholesale `24-MB04`, quantity equal to MOQ
 
 Change quantity to:
 
@@ -779,146 +624,24 @@ Because:
 
 ---
 
-## Scenario 13 — Wholesale `24-WB02`, quantity below MOQ
-
-### Header
-
-```text
-Authorization: Bearer <WHOLESALE_CUSTOMER_TOKEN>
-```
-
-### Request
-
-```graphql
-mutation {
-  addProductsToCart(
-    cartId: "<WHOLESALE_CART_ID>"
-    cartItems: [
-      {
-        sku: "24-WB02"
-        quantity: 5
-      }
-    ]
-  ) {
-    cart {
-      id
-    }
-  }
-}
-```
-
-### Expected
-
-Mutation fails with the module's MOQ error:
-
-```text
-Minimum order quantity for 24-WB02 is 10.
-```
-
----
-
-## Scenario 14 — Wholesale `24-WB02`, quantity equal to MOQ
-
-Change quantity to:
-
-```text
-10
-```
-
-### Request
-
-```graphql
-mutation {
-  addProductsToCart(
-    cartId: "<WHOLESALE_CART_ID>"
-    cartItems: [
-      {
-        sku: "24-WB02"
-        quantity: 10
-      }
-    ]
-  ) {
-    cart {
-      id
-      items {
-        product {
-          sku
-        }
-        quantity
-      }
-    }
-  }
-}
-```
-
-### Expected
-
-```text
-SUCCESS
-```
-
-Because:
-
-```text
-10 >= 10
-```
-
----
-
 # FINAL REQUIRED TEST MATRIX
 
 | # | Customer | SKU | Operation | Expected |
 |---:|---|---|---|---|
 | 1 | Guest | `24-MB04` | Product query | Status only, quantity hidden |
-| 2 | Guest | `24-WB02` | Product query | Status only, quantity hidden |
 | 3 | General `1` | `24-MB04` | Product query | Status only, quantity hidden |
-| 4 | General `1` | `24-WB02` | Product query | Status only, quantity hidden |
 | 5 | Wholesale `2` | `24-MB04` | Product query | Quantity `50`, MOQ `10` |
-| 6 | Wholesale `2` | `24-WB02` | Product query | Quantity `100`, MOQ `10` |
 | 7 | General `1` | `24-MB04` | Add qty `1` | Account-type error |
-| 8 | General `1` | `24-WB02` | Add qty `1` | Account-type error |
 | 9 | Guest | `24-MB04` | Add qty `1` | Account-type error |
-| 10 | Guest | `24-WB02` | Add qty `1` | Account-type error |
 | 11 | Wholesale `2` | `24-MB04` | Add qty `5` | MOQ error |
 | 12 | Wholesale `2` | `24-MB04` | Add qty `10` | Success |
-| 13 | Wholesale `2` | `24-WB02` | Add qty `5` | MOQ error |
-| 14 | Wholesale `2` | `24-WB02` | Add qty `10` | Success |
 
 ---
 
-# Requirement-to-Scenario Mapping
-
-| Requirement | Covered By |
-|---|---|
-| Wholesale Only attribute | Scenarios 1–6 |
-| Wholesale sees actual quantity | Scenarios 5–6 |
-| General sees only stock status | Scenarios 3–4 |
-| General cannot add Wholesale Only product | Scenarios 7–8 |
-| Configurable MOQ | Configuration + Scenarios 11–14 |
-| MOQ visible in product response | Scenarios 5–6 |
-| Customer-context-aware GraphQL | Scenarios 3–6 |
-| Guest treated as General | Scenarios 1–2, 9–10 |
-| MOQ enforced in `addProductsToCart` | Scenarios 11–14 |
-| No third-party service | Module implementation |
-
----
-
-# No Maximum-Quantity Testing
-
-Do **not** create a custom test such as:
+# Minimum-Quantity Testing
 
 ```text
-24-MB04 max order = 50
-24-WB02 max order = 100
-```
-
-That is not part of this task.
-
-Correct interpretation:
-
-```text
-24-MB04 current stock = 50
-24-WB02 current stock = 100
+24-MB04 current stock = 100
 Wholesale MOQ = 10
 ```
 
@@ -928,9 +651,6 @@ The custom rule is:
 quantity < 10  -> reject
 quantity >= 10 -> allow
 ```
-
-If Magento rejects an order because the requested quantity exceeds actual salable inventory, that is normal Magento/MSI inventory behavior and is **not a custom maximum-quantity feature**.
-
 ---
 
 # Altair Evidence Checklist
