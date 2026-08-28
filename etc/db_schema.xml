@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+
+    <table name="sk_customer_group_rule" resource="default" engine="innodb"
+           comment="Customer Group Minimum Quantity Rules for Wholesale Only Products">
+        <column xsi:type="int" name="rule_id" unsigned="true" nullable="false" identity="true"
+                comment="Rule ID"/>
+        <column xsi:type="int" name="customer_group_id" unsigned="true" nullable="false"
+                comment="Customer Group ID"/>
+        <column xsi:type="decimal" name="minimum_qty" scale="4" precision="12" unsigned="false"
+                nullable="false" default="0.0000" comment="Minimum Order Quantity"/>
+
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="rule_id"/>
+        </constraint>
+
+        <constraint xsi:type="foreign" referenceId="SK_CUSTEXT_GROUP_RULE_GROUP_FK"
+                    table="sk_customer_group_rule"
+                    column="customer_group_id" referenceTable="customer_group"
+                    referenceColumn="customer_group_id" onDelete="CASCADE"/>
+
+        <constraint xsi:type="unique" referenceId="SK_CUSTEXT_GROUP_RULE_GROUP_UNQ">
+            <column name="customer_group_id"/>
+        </constraint>
+    </table>
+</schema>

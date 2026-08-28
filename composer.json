@@ -1,0 +1,26 @@
+{
+    "name": "sk/module-customer-extend",
+    "description": "Magento 2 customer-group based wholesale stock visibility and cart rules",
+    "type": "magento2-module",
+    "license": [
+        "OSL-3.0",
+        "AFL-3.0"
+    ],
+    "require": {
+        "php": "^8.3",
+        "magento/framework": "*",
+        "magento/module-catalog": "*",
+        "magento/module-customer": "*",
+        "magento/module-graph-ql": "*",
+        "magento/module-quote-graph-ql": "*",
+        "magento/module-inventory-sales-api": "*"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Sk\\CustomerExtend\\": ""
+        }
+    }
+}

@@ -1,0 +1,21 @@
+extend interface ProductInterface {
+    wholesale_only: Boolean!
+        @resolver(class: "Sk\\CustomerExtend\\GraphQl\\Resolver\\WholesaleOnly")
+        @doc(description: "Whether this product is restricted to customer groups with an explicit rule.")
+
+    customer_group_stock_status: String!
+        @resolver(class: "Sk\\CustomerExtend\\GraphQl\\Resolver\\StockStatus")
+        @doc(description: "Stock status calculated for the current GraphQL customer context.")
+
+    customer_group_stock_quantity: Float
+        @resolver(class: "Sk\\CustomerExtend\\GraphQl\\Resolver\\StockQuantity")
+        @doc(description: "Salable stock quantity. Exposed only to an allowed customer group.")
+
+    minimum_order_quantity: Float!
+        @resolver(class: "Sk\\CustomerExtend\\GraphQl\\Resolver\\MinimumOrderQuantity")
+        @doc(description: "Minimum order quantity for the current customer group.")
+
+    customer_group_id: Int!
+        @resolver(class: "Sk\\CustomerExtend\\GraphQl\\Resolver\\CustomerGroupId")
+        @doc(description: "Magento customer group ID used for the current GraphQL request.")
+}
